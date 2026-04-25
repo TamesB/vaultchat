@@ -1,8 +1,10 @@
 from __future__ import annotations
 
+import boto3
 from django.contrib.auth.decorators import login_required
 from django.http import HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.conf import settings
 from django.views.decorators.http import require_http_methods
 
 from .forms import DocumentUploadForm
@@ -53,6 +55,31 @@ def document_detail(request: HttpRequest, document_id: str) -> HttpResponse:
 
     doc = get_object_or_404(Document, id=document_id, organization_id=request.user.organization_id)
     return render(request, "documents/detail.html", {"document": doc})
+
+
+@login_required
+@paid_required
+def document_download(request: HttpRequest, document_id: str) -> HttpResponse:
+    if request.user.organization_id is None:
+        return render(request, "documents/no_org.html", status=400)
+
+    doc = get_object_or_404(Document, id=document_id, organization_id=request.user.organization_id)
+
+    key = doc.file.name
+    s3 = boto3.client(
+        "s3",
+        aws_access_key_id=getattr(settings, "AWS_ACCESS_KEY_ID", None) or None,
+        aws_secret_access_key=getattr(settings, "AWS_SECRET_ACCESS_KEY", None) or None,
+        endpoint_url=getattr(settings, "AWS_S3_ENDPOINT_URL", None) or None,
+        region_name=getattr(settings, "AWS_S3_REGION_NAME", None) or None,
+    )
+
+    url = s3.generate_presigned_url(
+        ClientMethod="get_object",
+        Params={"Bucket": settings.AWS_STORAGE_BUCKET_NAME, "Key": key},
+        ExpiresIn=300,
+    )
+    return redirect(url)
 
 
 @login_required
