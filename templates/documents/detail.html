@@ -1,0 +1,58 @@
+{% extends "_base.html" %}
+
+{% block title %}{{ document.filename }} · Documents · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="flex items-start justify-between gap-6">
+    <div class="min-w-0">
+      <h1 class="truncate text-2xl font-semibold tracking-tight">{{ document.filename }}</h1>
+      <p class="mt-1 text-sm text-zinc-400">Uploaded at {{ document.created_at }}</p>
+    </div>
+    <a class="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-800" href="{% url 'documents:index' %}">
+      Back
+    </a>
+  </div>
+
+  <div class="mt-6 grid gap-4 lg:grid-cols-3">
+    <div class="lg:col-span-2 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="flex items-center justify-between">
+        <div class="text-sm font-medium text-zinc-200">Status</div>
+        {% if document.status == "ready" %}
+          <span class="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-200">Ready</span>
+        {% elif document.status == "processing" %}
+          <span class="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-200">Processing</span>
+        {% elif document.status == "failed" %}
+          <span class="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-200">Failed</span>
+        {% else %}
+          <span class="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-300">Uploaded</span>
+        {% endif %}
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3 sm:flex-row">
+        <a
+          class="inline-flex items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400"
+          href="{{ document.file.url }}"
+        >
+          Download PDF
+        </a>
+        <a class="inline-flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800" href="{% url 'chat:home' %}">
+          Ask questions
+        </a>
+      </div>
+    </div>
+
+    <aside class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="text-sm font-medium text-zinc-200">Danger zone</div>
+      <p class="mt-2 text-sm text-zinc-500">This will permanently remove the file and embeddings.</p>
+      <form method="post" action="{% url 'documents:delete' document_id=document.id %}" class="mt-4">
+        {% csrf_token %}
+        <button
+          type="submit"
+          class="inline-flex w-full items-center justify-center rounded-md border border-red-500/30 bg-red-500/10 px-4 py-2 text-sm font-medium text-red-200 hover:bg-red-500/15"
+        >
+          Delete document
+        </button>
+      </form>
+    </aside>
+  </div>
+{% endblock %}

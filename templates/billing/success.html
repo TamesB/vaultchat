@@ -1,0 +1,22 @@
+{% extends "_base.html" %}
+
+{% block title %}Payment successful · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-xl">
+    <div class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-6">
+      <h1 class="text-xl font-semibold">Payment successful</h1>
+      <p class="mt-2 text-sm text-emerald-200/90">
+        Thanks — your workspace unlocks as soon as Stripe confirms the payment (usually instantly via webhook).
+      </p>
+      <div class="mt-5 flex flex-col gap-3 sm:flex-row">
+        <a class="inline-flex items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400" href="{% url 'onboarding:start' %}">
+          Continue onboarding
+        </a>
+        <a class="inline-flex items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800" href="{% url 'web:dashboard' %}">
+          Back to dashboard
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

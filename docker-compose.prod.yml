@@ -1,0 +1,19 @@
+services:
+  web:
+    build:
+      context: .
+    command: ["gunicorn", "-c", "gunicorn.conf.py", "config.wsgi:application"]
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+    ports:
+      - "8000:8000"
+    # In production, mount nothing; use external storage for media.
+    # Configure DATABASE_URL and REDIS_URL via your platform/secret manager.
+
+  worker:
+    build:
+      context: .
+    command: ["celery", "-A", "config", "worker", "-l", "INFO"]
+    environment:
+      DJANGO_SETTINGS_MODULE: config.settings.prod
+

@@ -1,0 +1,63 @@
+{% extends "_base.html" %}
+
+{% block title %}Onboarding · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="flex items-start justify-between gap-6">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">Onboarding</h1>
+      <p class="mt-1 text-sm text-zinc-400">Get from “paid” to “first grounded answer” in 3 steps.</p>
+    </div>
+    <a class="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-800" href="{% url 'web:dashboard' %}">
+      Dashboard
+    </a>
+  </div>
+
+  <div class="mt-6 grid gap-4 lg:grid-cols-3">
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="text-sm text-zinc-400">Step 1</div>
+      <div class="mt-2 text-lg font-semibold">Upload documents</div>
+      <p class="mt-2 text-sm text-zinc-500">Add PDFs your assistant should search and cite.</p>
+      <a class="mt-5 inline-flex w-full items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400" href="{% url 'documents:index' %}">
+        Go to Documents
+      </a>
+    </div>
+
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="text-sm text-zinc-400">Step 2</div>
+      <div class="mt-2 text-lg font-semibold">Wait for processing</div>
+      <p class="mt-2 text-sm text-zinc-500">We embed chunks in the background. This is usually quick.</p>
+      <div class="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 text-sm text-zinc-300">
+        Ready: <span class="font-semibold">{{ ready_count }}</span> / Total: <span class="font-semibold">{{ total_count }}</span>
+      </div>
+      <a class="mt-5 inline-flex w-full items-center justify-center rounded-md border border-zinc-800 bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-200 hover:bg-zinc-800" href="{% url 'onboarding:start' %}">
+        Refresh status
+      </a>
+    </div>
+
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="text-sm text-zinc-400">Step 3</div>
+      <div class="mt-2 text-lg font-semibold">Ask your first question</div>
+      <p class="mt-2 text-sm text-zinc-500">VaultChat will retrieve relevant chunks and stream the answer.</p>
+
+      {% if has_ready %}
+        <a class="mt-5 inline-flex w-full items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400" href="{% url 'onboarding:chat' %}">
+          Go to Chat
+        </a>
+      {% else %}
+        <div class="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+          Upload at least one document and wait until it becomes <span class="font-semibold">Ready</span>.
+        </div>
+      {% endif %}
+
+      <div class="mt-5 rounded-xl border border-zinc-800 bg-zinc-900/30 p-4">
+        <div class="text-xs text-zinc-400">Suggested prompts</div>
+        <ul class="mt-2 list-disc space-y-1 pl-4 text-sm text-zinc-300">
+          <li>Summarize the key obligations in these documents.</li>
+          <li>Where does it mention deadlines? Quote the relevant parts.</li>
+          <li>List the top 10 key terms and where they appear.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+{% endblock %}

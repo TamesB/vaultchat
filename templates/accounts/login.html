@@ -1,0 +1,72 @@
+{% extends "_base.html" %}
+
+{% block title %}Sign in · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-md">
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6 shadow-sm">
+      <div class="flex items-center gap-3">
+        <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-500/15 ring-1 ring-accent-500/30">
+          <div class="h-4 w-4 rounded bg-accent-400"></div>
+        </div>
+        <div>
+          <h1 class="text-lg font-semibold">Sign in</h1>
+          <p class="text-sm text-zinc-400">Access your secure pilot workspace.</p>
+        </div>
+      </div>
+
+      {% if form.errors %}
+        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          Invalid email or password.
+        </div>
+      {% endif %}
+
+      <form method="post" class="mt-6 space-y-4">
+        {% csrf_token %}
+
+        <div>
+          <label class="text-sm text-zinc-300" for="id_username">Email</label>
+          <div class="mt-1">
+            <input
+              id="id_username"
+              name="username"
+              type="email"
+              autocomplete="email"
+              required
+              class="w-full rounded-md border border-zinc-800 bg-zinc-900/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent-500/40"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="text-sm text-zinc-300" for="id_password">Password</label>
+          <div class="mt-1">
+            <input
+              id="id_password"
+              name="password"
+              type="password"
+              autocomplete="current-password"
+              required
+              class="w-full rounded-md border border-zinc-800 bg-zinc-900/40 px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-accent-500/40"
+            />
+          </div>
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex w-full items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400"
+        >
+          Continue
+        </button>
+
+        <p class="text-xs text-zinc-500">
+          By continuing you agree to run a pilot and keep sensitive data inside your organization workspace.
+        </p>
+      </form>
+    </div>
+
+    <div class="mt-4 text-center text-sm text-zinc-500">
+      <a class="hover:text-zinc-200" href="{% url 'web:home' %}">Back to home</a>
+    </div>
+  </div>
+{% endblock %}

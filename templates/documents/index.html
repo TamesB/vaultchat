@@ -1,0 +1,78 @@
+{% extends "_base.html" %}
+
+{% block title %}Documents · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="flex items-start justify-between gap-6">
+    <div>
+      <h1 class="text-2xl font-semibold tracking-tight">Documents</h1>
+      <p class="mt-1 text-sm text-zinc-400">Upload PDFs to ground answers with citations.</p>
+    </div>
+    <a class="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900 px-3 py-1.5 text-sm text-zinc-200 hover:bg-zinc-800" href="{% url 'onboarding:start' %}">
+      Onboarding
+    </a>
+  </div>
+
+  <div class="mt-6 grid gap-4 lg:grid-cols-5">
+    <div class="lg:col-span-2 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <h2 class="text-sm font-medium text-zinc-200">Upload PDF</h2>
+      <p class="mt-1 text-sm text-zinc-500">Max 20MB. PDFs only.</p>
+
+      {% if form.errors %}
+        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          {{ form.errors }}
+        </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="mt-5 space-y-3">
+        {% csrf_token %}
+        <div class="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4">
+          {{ form.file }}
+        </div>
+        <button
+          type="submit"
+          class="inline-flex w-full items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400"
+        >
+          Upload
+        </button>
+      </form>
+    </div>
+
+    <div class="lg:col-span-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="text-sm font-medium text-zinc-200">Recent</h2>
+        <a class="text-sm text-zinc-400 hover:text-white" href="{% url 'chat:home' %}">Go to Chat</a>
+      </div>
+
+      {% if documents %}
+        <div class="mt-4 divide-y divide-zinc-800 overflow-hidden rounded-xl border border-zinc-800">
+          {% for d in documents %}
+            <div class="flex items-center justify-between gap-4 bg-zinc-900/20 px-4 py-3">
+              <div class="min-w-0">
+                <a class="truncate text-sm font-medium text-zinc-100 hover:underline" href="{% url 'documents:detail' document_id=d.id %}">
+                  {{ d.filename }}
+                </a>
+                <div class="mt-1 text-xs text-zinc-500">{{ d.created_at }}</div>
+              </div>
+              <div class="shrink-0">
+                {% if d.status == "ready" %}
+                  <span class="inline-flex items-center rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-200">Ready</span>
+                {% elif d.status == "processing" %}
+                  <span class="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-1 text-xs text-amber-200">Processing</span>
+                {% elif d.status == "failed" %}
+                  <span class="inline-flex items-center rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-xs text-red-200">Failed</span>
+                {% else %}
+                  <span class="inline-flex items-center rounded-full border border-zinc-800 bg-zinc-900 px-2.5 py-1 text-xs text-zinc-300">Uploaded</span>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="mt-4 rounded-xl border border-zinc-800 bg-zinc-900/20 p-6 text-sm text-zinc-400">
+          No documents yet. Upload your first PDF to start.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+{% endblock %}

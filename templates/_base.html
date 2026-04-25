@@ -1,0 +1,44 @@
+{% load static %}
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}VaultChat{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              accent: tailwind.colors.violet,
+            },
+          },
+        },
+      };
+    </script>
+
+    <style>
+      .htmx-indicator { display: none; }
+      .htmx-request .htmx-indicator { display: inline-flex; }
+      .htmx-request.htmx-indicator { display: inline-flex; }
+    </style>
+  </head>
+  <body class="min-h-full bg-zinc-950 text-zinc-50 antialiased">
+    <div class="pointer-events-none fixed inset-0 overflow-hidden">
+      <div class="absolute left-1/2 top-[-120px] h-[420px] w-[900px] -translate-x-1/2 rounded-full bg-accent-500/20 blur-3xl"></div>
+    </div>
+
+    <div class="relative min-h-full">
+      {% include "partials/nav.html" %}
+
+      <main class="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        {% block content %}{% endblock %}
+      </main>
+
+      {% include "partials/footer.html" %}
+    </div>
+  </body>
+</html>
+

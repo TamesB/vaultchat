@@ -1,0 +1,40 @@
+{% extends "_base.html" %}
+
+{% block title %}Create organization · VaultChat{% endblock %}
+
+{% block content %}
+  <div class="mx-auto max-w-lg">
+    <div class="rounded-2xl border border-zinc-800 bg-zinc-950/60 p-6">
+      <h1 class="text-xl font-semibold tracking-tight">Create your organization</h1>
+      <p class="mt-1 text-sm text-zinc-400">This creates your pilot workspace. Payment comes after intake.</p>
+
+      {% if form.errors %}
+        <div class="mt-4 rounded-lg border border-red-500/30 bg-red-500/10 p-3 text-sm text-red-200">
+          {{ form.errors }}
+        </div>
+      {% endif %}
+
+      <form method="post" class="mt-6 space-y-4">
+        {% csrf_token %}
+        <div>
+          <label class="text-sm text-zinc-300">Organization name</label>
+          <div class="mt-1">
+            {{ form.name }}
+          </div>
+          <p class="mt-2 text-xs text-zinc-500">Example: “Acme Legal BV” or “Ops Team”.</p>
+        </div>
+
+        <button
+          type="submit"
+          class="inline-flex w-full items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400"
+        >
+          Create workspace
+        </button>
+      </form>
+    </div>
+
+    <div class="mt-4 text-center text-sm text-zinc-500">
+      <a class="hover:text-zinc-200" href="{% url 'web:dashboard' %}">Back to dashboard</a>
+    </div>
+  </div>
+{% endblock %}
