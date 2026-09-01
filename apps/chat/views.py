@@ -99,15 +99,34 @@ def send_message(request: HttpRequest, chat_id: str) -> HttpResponse:
     retrieved = retrieve_chunks(request.user.organization_id, question, k=6)
     prompt = _build_prompt(question, retrieved)
 
+    print(prompt)
+
     def gen() -> Iterable[bytes]:
+        answer_parts: list[str] = []
+
         # First, add the user message HTML (so HTMX can swap in one response)
         yield render(request, "chat/partials/user_message.html", {"content": question}).content
 
         # Then, stream the assistant message container + incremental chunks
         yield render(request, "chat/partials/assistant_message_start.html", {"citations": retrieved}).content
-        for token in stream_chat_completion(prompt):
-            safe = html.escape(token)
-            yield safe.encode("utf-8")
+        try:
+            for token in stream_chat_completion(prompt):
+                answer_parts.append(token)
+                safe = html.escape(token)
+                yield safe.encode("utf-8")
+        finally:
+            final_answer = "".join(answer_parts).strip()
+            if final_answer:
+                Message.objects.create(
+                    organization_id=request.user.organization_id,
+                    chat_id=chat.id,
+                    role=Message.Role.ASSISTANT,
+                    content=final_answer,
+                )
+                if not chat.title:
+                    chat.title = question[:80].strip() or "New chat"
+                    chat.save(update_fields=["title"])
+
         yield render(request, "chat/partials/assistant_message_end.html").content
 
     return StreamingHttpResponse(gen(), content_type="text/html; charset=utf-8")

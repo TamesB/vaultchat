@@ -24,5 +24,6 @@ def chunk_text(text: str, chunk_size: int = 1000, overlap: int = 150) -> list[Ch
             chunks.append(Chunk(index=idx, content=content))
             idx += 1
         i = max(end - overlap, end)
+
     return chunks
 
