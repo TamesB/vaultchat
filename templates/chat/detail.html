@@ -4,6 +4,33 @@
 
 {% block content %}
   <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <style>
+    #chat-form.htmx-request button {
+      cursor: wait;
+      opacity: 0.8;
+    }
+
+    #chat-form.htmx-request .chat-send-text {
+      display: none;
+    }
+
+    #chat-form.htmx-request .chat-send-loader {
+      display: inline-flex;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('htmx:afterRequest', function (event) {
+      const form = event.target;
+      if (!form || form.id !== 'chat-form' || !event.detail.successful) return;
+
+      const input = form.querySelector('#chat-input');
+      if (input) {
+        input.value = '';
+        input.focus();
+      }
+    });
+  </script>
 
   <div class="grid gap-4 lg:grid-cols-12">
     <aside class="lg:col-span-3 rounded-2xl border border-zinc-800 bg-zinc-950/60 p-4">
@@ -61,10 +88,13 @@
           hx-post="{% url 'chat:send_message' chat_id=chat.id %}"
           hx-target="#messages"
           hx-swap="beforeend"
+          hx-disabled-elt="button"
+          hx-indicator="#chat-form"
           class="flex items-center gap-3"
         >
           {% csrf_token %}
           <input
+            id="chat-input"
             name="message"
             type="text"
             placeholder="Ask a question about your documents…"
@@ -75,7 +105,11 @@
             type="submit"
             class="inline-flex shrink-0 items-center justify-center rounded-md bg-accent-500 px-4 py-2 text-sm font-medium text-white hover:bg-accent-400"
           >
-            Send
+            <span class="chat-send-text">Send</span>
+            <span class="chat-send-loader hidden items-center gap-2">
+              <span class="h-4 w-4 animate-spin rounded-full border border-white/30 border-t-white"></span>
+              Sending...
+            </span>
           </button>
         </form>
       </div>

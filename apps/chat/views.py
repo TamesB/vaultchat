@@ -51,18 +51,33 @@ def chat_detail(request: HttpRequest, chat_id: str) -> HttpResponse:
     return render(request, "chat/detail.html", {"chat": chat, "messages": messages, "chats": chats})
 
 
-def _build_prompt(question: str, retrieved) -> str:
+def _build_prompt(question: str, retrieved, history=()) -> str:
     context_lines: list[str] = []
     for i, ch in enumerate(retrieved, start=1):
         context_lines.append(f"[{i}] ({ch.source_filename}) {ch.content}")
 
     context = "\n\n".join(context_lines)
+    history_lines = [
+        f"{message.role.capitalize()}: {message.content}"
+        for message in history
+    ]
+    history_text = "\n\n".join(history_lines)
+
+    instruction = "You are a helpful assistant. "
+    if history_text:
+        instruction += "Use the context and chat history to answer. "
+    else:
+        instruction += "Use the context to answer. "
+    instruction += "If the context is insufficient, say so."
+    prompt_sections = [instruction]
     if context:
-        return (
-            "You are a helpful assistant. Use the context to answer. If the context is insufficient, say so.\n\n"
-            f"Context:\n{context}\n\nQuestion:\n{question}\n"
-        )
-    return question
+        prompt_sections.append(f"Context:\n{context}")
+    if history_text:
+        prompt_sections.append(f"Chat history:\n{history_text}")
+    if not context and not history_text:
+        return question
+    prompt_sections.append(f"Question:\n{question}")
+    return "\n\n".join(prompt_sections) + "\n"
 
 
 @login_required
@@ -83,6 +98,12 @@ def send_message(request: HttpRequest, chat_id: str) -> HttpResponse:
     if not question:
         return HttpResponse("", status=400)
 
+    history = list(
+        Message.objects.filter(
+            chat_id=chat.id,
+            organization_id=request.user.organization_id,
+        ).order_by("created_at")
+    )
     Message.objects.create(
         organization_id=request.user.organization_id,
         chat_id=chat.id,
@@ -97,7 +118,7 @@ def send_message(request: HttpRequest, chat_id: str) -> HttpResponse:
     )
 
     retrieved = retrieve_chunks(request.user.organization_id, question, k=6)
-    prompt = _build_prompt(question, retrieved)
+    prompt = _build_prompt(question, retrieved, history)
 
     print(prompt)
 
@@ -130,4 +151,3 @@ def send_message(request: HttpRequest, chat_id: str) -> HttpResponse:
         yield render(request, "chat/partials/assistant_message_end.html").content
 
     return StreamingHttpResponse(gen(), content_type="text/html; charset=utf-8")
-
